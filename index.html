@@ -1,36 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Городской Ипподром - Конные прогулки и скачки</title>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <header>
-
+    <header class="header">
+        <div class="container">
+            <div class="header-logo">
+                <img src="images/logo.png" width="100" height="80" alt="Логотип ипподрома">
+                <h1>Городской Ипподром</h1>
+            </div>
+            <nav class="header-nav">
+                <ul>
+                    <li><a href="#about">О нас</a></li>
+                    <li><a href="#services">Услуги</a></li>
+                    <li><a href="#events">Мероприятия</a></li>
+                    <li><a href="#contacts">Контакты</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
-    <main>
-        <h1>Заголовок 1</h1>
-        <h2>Заголовок 2</h2>
-        <p>текст 1</p>
-        <p>текст 2</p>
-        <p>текст 3</p>
-        <h2>Пример маркированного списка</h2>
-        <ul>
-            <li>Пункт 1 маркированного списка</li>
-            <li>Пункт 2 маркированного списка</li>
-            <li>Пункт 3 маркированного списка</li>
-        </ul>
-        <h2>Пример нумерованного списка</h2>
-        <ol>
-            <li>Пункт 1 </li>
-            <li>Пункт 2 </li>
-            <li>Пункт 3 </li>
-        </ol>
-        <img src="images/leopard.jpg" width="300">
-    </main>
-    <footer>
 
+    <main class="main">
+        <section class="hero">
+            <div class="container">
+                <h2>Добро пожаловать на наш ипподром!</h2>
+                <img src="images/hippodrome-main.jpg" width="800" height="400" alt="Главное здание ипподрома">
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2>О нашем ипподроме</h2>
+                <p>Мы предлагаем уникальные возможности для любителей конного спорта и просто желающих провести время с этими прекрасными животными.</p>
+            </div>
+        </section>
+
+        <section id="services" class="services">
+            <div class="container">
+                <h2>Наши услуги</h2>
+                <div class="service-item">
+                    <img src="images/horse-riding.jpg" width="300" height="200" alt="Конные прогулки">
+                    <h3>Конные прогулки</h3>
+                    <p>Прогулки по живописным маршрутам для всех уровней подготовки.</p>
+                </div>
+                <div class="service-item">
+                    <img src="images/races.jpg" width="300" height="200" alt="Скачки">
+                    <h3>Скачки и соревнования</h3>
+                    <p>Регулярные соревнования по конному спорту и показательные выступления.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="events" class="events">
+            <div class="container">
+                <h2>Ближайшие мероприятия</h2>
+                <ul>
+                    <li><a href="weekly-races.html">Еженедельные скачки по выходным</a></li>
+                    <li><a href="pony-parties.html">Детские праздники с пони</a></li>
+                    <li><a href="riding-lessons.html">Мастер-классы по верховой езде</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="feedback">
+            <div class="container">
+                <h2>Записаться на прогулку</h2>
+                <form action="submit-form.php" method="post">
+                    <label for="name">Ваше имя:</label>
+                    <input type="text" id="name" name="name" required>
+                    
+                    <label for="phone">Телефон:</label>
+                    <input type="tel" id="phone" name="phone" required>
+                    
+                    <label for="date">Желаемая дата:</label>
+                    <input type="date" id="date" name="date" required>
+                    
+                    <label for="service">Услуга:</label>
+                    <select id="service" name="service" required>
+                        <option value="walking">Конная прогулка</option>
+                        <option value="lesson">Урок верховой езды</option>
+                        <option value="event">Посещение мероприятия</option>
+                    </select>
+                    
+                    <button type="submit">Отправить заявку</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contacts" class="footer">
+        <div class="container">
+            <h2>Контакты</h2>
+            <address>
+                <p>Адрес: г. Москва, ул. Ипподромная, 1</p>
+                <p>Email: <a href="mailto:info@hippodrome.ru">info@hippodrome.ru</a></p>
+            </address>
+            <div class="authors">
+                <p>Авторы проекта: Горинова А.И., Чудновская В.Д., Шарабайко У.Д.</p>
+            </div>
+            <p>&copy; 2023 Городской Ипподром. Все права защищены.</p>
+        </div>
     </footer>
+
+    <script src="js/script.js"></script>
 </body>
 </html>
