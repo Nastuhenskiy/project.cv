@@ -127,4 +127,81 @@ document.addEventListener('DOMContentLoaded', function() {
             behavior: 'smooth'
         });
     });
+
+    // Создаем объект с данными услуг
+const servicesData = {
+  title: "Наши услуги",
+  items: [
+    {
+      icon: "images/horse-riding.jpg",
+      title: "Конные прогулки",
+      description: "Прогулки по живописным маршрутам для всех уровней подготовки.",
+      link: "#"
+    },
+    {
+      icon: "images/races.jpg",
+      title: "Скачки и соревнования",
+      description: "Регулярные соревнования по конному спорту и показательные выступления.",
+      link: "#"
+    },
+    {
+      icon: "images/horse-training.jpg",
+      title: "Обучение верховой езде",
+      description: "Профессиональные тренеры помогут освоить искусство верховой езды.",
+      link: "#"
+    }
+  ]
+};
+
+    // Динамически создаем блок услуг
+    function renderServices(data) {
+    const servicesSection = document.querySelector('#services');
+    if (!servicesSection) return;
+
+    // Очищаем существующий контент
+    servicesSection.innerHTML = '';
+
+    // Создаем заголовок
+    const title = document.createElement('h2');
+    title.textContent = data.title;
+    servicesSection.appendChild(title);
+
+    // Создаем контейнер для услуг
+    const container = document.createElement('div');
+    container.className = 'container';
+    servicesSection.appendChild(container);
+
+    // Добавляем каждую услугу
+    data.items.forEach(service => {
+        const serviceItem = document.createElement('div');
+        serviceItem.className = 'service-item';
+
+        const img = document.createElement('img');
+        img.src = service.icon;
+        img.alt = service.title;
+        img.width = 300;
+        img.height = 200;
+
+        const title = document.createElement('h3');
+        title.textContent = service.title;
+
+        const desc = document.createElement('p');
+        desc.textContent = service.description;
+
+        const link = document.createElement('a');
+        link.href = service.link;
+        link.className = 'service-link';
+        link.textContent = 'Подробнее →';
+
+        serviceItem.appendChild(img);
+        serviceItem.appendChild(title);
+        serviceItem.appendChild(desc);
+        serviceItem.appendChild(link);
+
+        container.appendChild(serviceItem);
+    });
+    }
+
+    // Вызываем функцию рендеринга
+    renderServices(servicesData);
 });
