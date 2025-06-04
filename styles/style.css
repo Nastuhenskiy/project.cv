@@ -439,3 +439,74 @@ a:focus, button:focus {
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
 }
+
+/* Стили для карусели */
+.services-swiper {
+    padding: 20px 0 40px;
+    width: 100%;
+}
+
+.swiper-slide {
+    height: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.service-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.service-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.service-card h3 {
+    margin: 0 0 10px;
+    color: #2c3e50;
+}
+
+.service-card p {
+    flex-grow: 1;
+    margin-bottom: 15px;
+}
+
+.btn-book {
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-book:hover {
+    background: #1a252f;
+}
+
+/* Навигация карусели */
+.swiper-button-prev, 
+.swiper-button-next {
+    color: #2c3e50;
+}
+
+.swiper-pagination-bullet-active {
+    background: #2c3e50;
+}
+
+@media (max-width: 767px) {
+    .swiper-button-prev, 
+    .swiper-button-next {
+        display: none;
+    }
+}

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Городской Ипподром - Конные прогулки и скачки</title>
+    <!-- Подключаем Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
     <link rel="stylesheet" href="styles/style.css">
     <style>
         /* Критически важные стили для предотвращения FOUC */
@@ -27,7 +29,7 @@
         }
         .content {
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease 0.3s;
         }
         body.loaded .preloader {
             opacity: 0;
@@ -81,7 +83,15 @@
 
             <section id="services" class="services">
                 <div class="container">
-                    <!-- Контент будет загружен через JavaScript -->
+                    <h2>Наши услуги</h2>
+                    <div class="swiper services-swiper">
+                        <div class="swiper-wrapper">
+                            <!-- Карточки будут добавлены через JS -->
+                        </div>
+                        <div class="swiper-pagination"></div>
+                        <div class="swiper-button-prev"></div>
+                        <div class="swiper-button-next"></div>
+                    </div>
                 </div>
             </section>
 
@@ -99,7 +109,7 @@
             <section class="feedback">
                 <div class="container">
                     <h2>Записаться на прогулку</h2>
-                    <form action="submit-form.php" method="post">
+                    <form id="booking-form" action="submit-form.php" method="post">
                         <label for="name">Ваше имя:</label>
                         <input type="text" id="name" name="name" required>
                         
@@ -137,6 +147,8 @@
         </footer>
     </div>
 
+    <!-- Подключаем Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>

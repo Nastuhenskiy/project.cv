@@ -1,116 +1,154 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Элементы предзагрузки
     const preloader = document.querySelector('.preloader');
     const content = document.querySelector('.content');
     const loadingText = document.querySelector('.loading-text');
-    
+
     // Функция завершения загрузки
-    function completeLoading() {
-        // Показываем контент
-        content.style.opacity = '1';
-        
-        // Плавно скрываем прелоадер
-        preloader.style.opacity = '0';
-        
+    const completeLoading = () => {
+        document.body.classList.add('loaded');
         setTimeout(() => {
-            // Удаляем прелоадер после анимации
             preloader.style.display = 'none';
-            
-            // Возвращаем скролл
             document.body.classList.remove('preload');
-            document.body.classList.add('loaded');
-            
-            // Инициализируем компоненты
-            initComponents();
         }, 500);
-    }
+    };
 
     // Имитация загрузки
     let progress = 0;
     const loadInterval = setInterval(() => {
         progress += 20;
-        loadingText.textContent = `Загрузка ипподрома... ${progress}%`;
+        loadingText.textContent = `Загрузка ${progress}%`;
         
         if (progress >= 100) {
             clearInterval(loadInterval);
             completeLoading();
+            initAll();
         }
     }, 150);
 
-    // Инициализация компонентов
-    function initComponents() {
+    // Инициализация всех компонентов
+    function initAll() {
+        initSwiper();
+        initFormStorage();
         initScrollToTop();
-        initSmoothScrolling();
-        initFormHandling();
-        loadServices();
         updateFooterYear();
     }
 
-    // Загрузка услуг
-    async function loadServices() {
-        try {
-            const response = await fetch('data/services.json');
-            if (!response.ok) throw new Error('Ошибка загрузки');
-            const data = await response.json();
-            renderServices(data.services);
-        } catch (error) {
-            console.error('Ошибка:', error);
-            renderError();
-        }
-    }
-
-    function renderServices(services) {
-        const container = document.querySelector('#services .container');
-        if (!container) return;
-        
-        container.innerHTML = `
-            <h2>${services.title}</h2>
-            <div class="services-grid">
-                ${services.items.map(service => `
-                    <div class="service-item">
-                        <img src="${service.icon}" alt="${service.title}" width="300" height="200">
-                        <h3>${service.title}</h3>
-                        <p>${service.description}</p>
-                        <a href="${service.link}" class="service-link">Подробнее →</a>
+    // 1. Карусель Swiper
+    function initSwiper() {
+        // Загружаем данные услуг
+        fetch('data/services.json')
+            .then(response => response.json())
+            .then(data => {
+                const swiperWrapper = document.querySelector('.swiper-wrapper');
+                swiperWrapper.innerHTML = data.services.items.map(service => `
+                    <div class="swiper-slide">
+                        <div class="service-card">
+                            <img src="${service.icon}" alt="${service.title}">
+                            <h3>${service.title}</h3>
+                            <p>${service.description}</p>
+                            <button class="btn-book" data-service="${service.title}">Записаться</button>
+                        </div>
                     </div>
-                `).join('')}
-            </div>
-        `;
-        
-        initServiceAnimations();
+                `).join('');
+
+                // Инициализируем Swiper после загрузки карточек
+                new Swiper('.services-swiper', {
+                    loop: true,
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                    breakpoints: {
+                        768: { slidesPerView: 2 },
+                        1024: { slidesPerView: 3 }
+                    }
+                });
+
+                // Добавляем обработчики для кнопок записи
+                document.querySelectorAll('.btn-book').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const serviceName = this.getAttribute('data-service');
+                        const form = document.getElementById('booking-form');
+                        let serviceValue = 'walking';
+                        
+                        if (serviceName.includes('урок')) serviceValue = 'lesson';
+                        if (serviceName.includes('мероприятие')) serviceValue = 'event';
+                        
+                        form.service.value = serviceValue;
+                        form.scrollIntoView({ behavior: 'smooth' });
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки услуг:', error);
+                document.querySelector('#services .container').innerHTML = `
+                    <div class="error">Не удалось загрузить услуги. Пожалуйста, попробуйте позже.</div>
+                `;
+            });
     }
 
-    function renderError() {
-        const container = document.querySelector('#services .container');
-        if (container) {
-            container.innerHTML = `
-                <div class="error-message">
-                    <h3>Произошла ошибка при загрузке услуг</h3>
-                    <p>Попробуйте обновить страницу</p>
-                </div>
-            `;
+    // 2. Работа с LocalStorage для формы
+    function initFormStorage() {
+        const form = document.getElementById('booking-form');
+        if (!form) return;
+
+        // Восстановление данных из LocalStorage
+        const savedData = JSON.parse(localStorage.getItem('bookingFormData'));
+        if (savedData) {
+            form.name.value = savedData.name || '';
+            form.phone.value = savedData.phone || '';
+            form.date.value = savedData.date || '';
+            form.service.value = savedData.service || 'walking';
         }
+
+        // Сохранение данных при изменении
+        form.addEventListener('input', () => {
+            const formData = {
+                name: form.name.value,
+                phone: form.phone.value,
+                date: form.date.value,
+                service: form.service.value
+            };
+            localStorage.setItem('bookingFormData', JSON.stringify(formData));
+        });
+
+        // Очистка при отправке
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('bookingFormData');
+            alert('Спасибо за заявку! Мы свяжемся с вами в ближайшее время.');
+            form.reset();
+        });
     }
 
+    // 3. Кнопка скролла вверх
     function initScrollToTop() {
-        const btn = document.createElement('button');
-        btn.className = 'scroll-to-top';
-        btn.innerHTML = '↑';
-        document.body.appendChild(btn);
+        const scrollBtn = document.createElement('button');
+        scrollBtn.className = 'scroll-to-top';
+        scrollBtn.innerHTML = '↑';
+        document.body.appendChild(scrollBtn);
 
         const toggleVisibility = () => {
             if (window.scrollY > 300) {
-                btn.style.opacity = '1';
-                btn.style.visibility = 'visible';
+                scrollBtn.style.opacity = '1';
+                scrollBtn.style.visibility = 'visible';
             } else {
-                btn.style.opacity = '0';
-                btn.style.visibility = 'hidden';
+                scrollBtn.style.opacity = '0';
+                scrollBtn.style.visibility = 'hidden';
             }
         };
 
         window.addEventListener('scroll', toggleVisibility);
         toggleVisibility();
 
-        btn.addEventListener('click', () => {
+        scrollBtn.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
@@ -118,44 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function initSmoothScrolling() {
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-    }
-
-    function initFormHandling() {
-        const form = document.querySelector('form');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert('Спасибо за заявку! Мы свяжемся с вами.');
-                this.reset();
-            });
-        }
-    }
-
-    function initServiceAnimations() {
-        document.querySelectorAll('.service-item').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                item.style.transform = 'translateY(-5px)';
-                item.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
-            });
-            item.addEventListener('mouseleave', () => {
-                item.style.transform = '';
-                item.style.boxShadow = '';
-            });
-        });
-    }
-
+    // 4. Обновление года в футере
     function updateFooterYear() {
         const yearElement = document.getElementById('current-year');
         if (yearElement) {
