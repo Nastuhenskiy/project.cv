@@ -1,207 +1,165 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Smooth scrolling for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
-            
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-
-    // Form submission handling
-    const contactForm = document.querySelector('form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Here you would normally send the form data to a server
-            // For demonstration, we'll just show an alert
-            const formData = new FormData(this);
-            const formValues = Object.fromEntries(formData.entries());
-            
-            console.log('Form submitted:', formValues);
-            alert('Спасибо за вашу заявку! Мы свяжемся с вами в ближайшее время.');
-            
-            // Reset the form after submission
-            this.reset();
-        });
-    }
-
-    // Service items animation
-    const serviceItems = document.querySelectorAll('.service-item');
-    serviceItems.forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
-        });
+    const preloader = document.querySelector('.preloader');
+    const content = document.querySelector('.content');
+    const loadingText = document.querySelector('.loading-text');
+    
+    // Функция завершения загрузки
+    function completeLoading() {
+        // Показываем контент
+        content.style.opacity = '1';
         
-        item.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
-        });
-    });
-
-    // Current year in footer
-    const yearElement = document.querySelector('footer p:last-child');
-    if (yearElement) {
-        const currentYear = new Date().getFullYear();
-        yearElement.textContent = yearElement.textContent.replace('2023', currentYear);
+        // Плавно скрываем прелоадер
+        preloader.style.opacity = '0';
+        
+        setTimeout(() => {
+            // Удаляем прелоадер после анимации
+            preloader.style.display = 'none';
+            
+            // Возвращаем скролл
+            document.body.classList.remove('preload');
+            document.body.classList.add('loaded');
+            
+            // Инициализируем компоненты
+            initComponents();
+        }, 500);
     }
 
-    // 1. Создаем массив из заголовков и выводим их
-    const headings = Array.from(document.querySelectorAll('h2')).map(h2 => h2.textContent);
-    console.log('Все заголовки h2 на странице:', headings);
-    
-    // Выводим заголовки в специальный блок (можно создать или использовать существующий)
-    const headingsContainer = document.createElement('div');
-    headingsContainer.className = 'headings-list';
-    headingsContainer.style.background = '#f9f9f9';
-    headingsContainer.style.padding = '20px';
-    headingsContainer.style.margin = '20px 0';
-    headingsContainer.style.borderRadius = '8px';
-    
-    const headingsTitle = document.createElement('h3');
-    headingsTitle.textContent = 'Все разделы на странице:';
-    headingsContainer.appendChild(headingsTitle);
-    
-    const headingsList = document.createElement('ul');
-    headings.forEach(heading => {
-        const li = document.createElement('li');
-        li.textContent = heading;
-        headingsList.appendChild(li);
-    });
-    headingsContainer.appendChild(headingsList);
-    
-    // Вставляем после hero-секции
-    const heroSection = document.querySelector('.hero');
-    if (heroSection) {
-        heroSection.insertAdjacentElement('afterend', headingsContainer);
-    }
-
-    // 2. Добавляем кнопку скролла вверх
-    const scrollToTopBtn = document.createElement('button');
-    scrollToTopBtn.className = 'scroll-to-top';
-    scrollToTopBtn.innerHTML = '↑ Наверх';
-    scrollToTopBtn.style.position = 'fixed';
-    scrollToTopBtn.style.bottom = '20px';
-    scrollToTopBtn.style.right = '20px';
-    scrollToTopBtn.style.padding = '10px 15px';
-    scrollToTopBtn.style.backgroundColor = '#2c3e50';
-    scrollToTopBtn.style.color = 'white';
-    scrollToTopBtn.style.border = 'none';
-    scrollToTopBtn.style.borderRadius = '5px';
-    scrollToTopBtn.style.cursor = 'pointer';
-    scrollToTopBtn.style.display = 'none';
-    scrollToTopBtn.style.zIndex = '99';
-    scrollToTopBtn.style.transition = 'opacity 0.3s';
-    
-    document.body.appendChild(scrollToTopBtn);
-    
-    // Показываем/скрываем кнопку при скролле
-    window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 300) {
-            scrollToTopBtn.style.display = 'block';
-            scrollToTopBtn.style.opacity = '0.8';
-        } else {
-            scrollToTopBtn.style.opacity = '0';
-            setTimeout(() => {
-                if (window.pageYOffset <= 300) {
-                    scrollToTopBtn.style.display = 'none';
-                }
-            }, 300);
+    // Имитация загрузки
+    let progress = 0;
+    const loadInterval = setInterval(() => {
+        progress += 20;
+        loadingText.textContent = `Загрузка ипподрома... ${progress}%`;
+        
+        if (progress >= 100) {
+            clearInterval(loadInterval);
+            completeLoading();
         }
-    });
-    
-    // Обработчик клика по кнопке
-    scrollToTopBtn.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+    }, 150);
+
+    // Инициализация компонентов
+    function initComponents() {
+        initScrollToTop();
+        initSmoothScrolling();
+        initFormHandling();
+        loadServices();
+        updateFooterYear();
+    }
+
+    // Загрузка услуг
+    async function loadServices() {
+        try {
+            const response = await fetch('data/services.json');
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            const data = await response.json();
+            renderServices(data.services);
+        } catch (error) {
+            console.error('Ошибка:', error);
+            renderError();
+        }
+    }
+
+    function renderServices(services) {
+        const container = document.querySelector('#services .container');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <h2>${services.title}</h2>
+            <div class="services-grid">
+                ${services.items.map(service => `
+                    <div class="service-item">
+                        <img src="${service.icon}" alt="${service.title}" width="300" height="200">
+                        <h3>${service.title}</h3>
+                        <p>${service.description}</p>
+                        <a href="${service.link}" class="service-link">Подробнее →</a>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        initServiceAnimations();
+    }
+
+    function renderError() {
+        const container = document.querySelector('#services .container');
+        if (container) {
+            container.innerHTML = `
+                <div class="error-message">
+                    <h3>Произошла ошибка при загрузке услуг</h3>
+                    <p>Попробуйте обновить страницу</p>
+                </div>
+            `;
+        }
+    }
+
+    function initScrollToTop() {
+        const btn = document.createElement('button');
+        btn.className = 'scroll-to-top';
+        btn.innerHTML = '↑';
+        document.body.appendChild(btn);
+
+        const toggleVisibility = () => {
+            if (window.scrollY > 300) {
+                btn.style.opacity = '1';
+                btn.style.visibility = 'visible';
+            } else {
+                btn.style.opacity = '0';
+                btn.style.visibility = 'hidden';
+            }
+        };
+
+        window.addEventListener('scroll', toggleVisibility);
+        toggleVisibility();
+
+        btn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
-    });
-
-    // Создаем объект с данными услуг
-const servicesData = {
-  title: "Наши услуги",
-  items: [
-    {
-      icon: "images/horse-riding.jpg",
-      title: "Конные прогулки",
-      description: "Прогулки по живописным маршрутам для всех уровней подготовки.",
-      link: "#"
-    },
-    {
-      icon: "images/races.jpg",
-      title: "Скачки и соревнования",
-      description: "Регулярные соревнования по конному спорту и показательные выступления.",
-      link: "#"
-    },
-    {
-      icon: "images/horse-training.jpg",
-      title: "Обучение верховой езде",
-      description: "Профессиональные тренеры помогут освоить искусство верховой езды.",
-      link: "#"
-    }
-  ]
-};
-
-    // Динамически создаем блок услуг
-    function renderServices(data) {
-    const servicesSection = document.querySelector('#services');
-    if (!servicesSection) return;
-
-    // Очищаем существующий контент
-    servicesSection.innerHTML = '';
-
-    // Создаем заголовок
-    const title = document.createElement('h2');
-    title.textContent = data.title;
-    servicesSection.appendChild(title);
-
-    // Создаем контейнер для услуг
-    const container = document.createElement('div');
-    container.className = 'container';
-    servicesSection.appendChild(container);
-
-    // Добавляем каждую услугу
-    data.items.forEach(service => {
-        const serviceItem = document.createElement('div');
-        serviceItem.className = 'service-item';
-
-        const img = document.createElement('img');
-        img.src = service.icon;
-        img.alt = service.title;
-        img.width = 300;
-        img.height = 200;
-
-        const title = document.createElement('h3');
-        title.textContent = service.title;
-
-        const desc = document.createElement('p');
-        desc.textContent = service.description;
-
-        const link = document.createElement('a');
-        link.href = service.link;
-        link.className = 'service-link';
-        link.textContent = 'Подробнее →';
-
-        serviceItem.appendChild(img);
-        serviceItem.appendChild(title);
-        serviceItem.appendChild(desc);
-        serviceItem.appendChild(link);
-
-        container.appendChild(serviceItem);
-    });
     }
 
-    // Вызываем функцию рендеринга
-    renderServices(servicesData);
+    function initSmoothScrolling() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    }
+
+    function initFormHandling() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Спасибо за заявку! Мы свяжемся с вами.');
+                this.reset();
+            });
+        }
+    }
+
+    function initServiceAnimations() {
+        document.querySelectorAll('.service-item').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.transform = 'translateY(-5px)';
+                item.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = '';
+                item.style.boxShadow = '';
+            });
+        });
+    }
+
+    function updateFooterYear() {
+        const yearElement = document.getElementById('current-year');
+        if (yearElement) {
+            yearElement.textContent = new Date().getFullYear();
+        }
+    }
 });
