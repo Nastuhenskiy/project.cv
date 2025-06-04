@@ -55,4 +55,76 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentYear = new Date().getFullYear();
         yearElement.textContent = yearElement.textContent.replace('2023', currentYear);
     }
+
+    // 1. Создаем массив из заголовков и выводим их
+    const headings = Array.from(document.querySelectorAll('h2')).map(h2 => h2.textContent);
+    console.log('Все заголовки h2 на странице:', headings);
+    
+    // Выводим заголовки в специальный блок (можно создать или использовать существующий)
+    const headingsContainer = document.createElement('div');
+    headingsContainer.className = 'headings-list';
+    headingsContainer.style.background = '#f9f9f9';
+    headingsContainer.style.padding = '20px';
+    headingsContainer.style.margin = '20px 0';
+    headingsContainer.style.borderRadius = '8px';
+    
+    const headingsTitle = document.createElement('h3');
+    headingsTitle.textContent = 'Все разделы на странице:';
+    headingsContainer.appendChild(headingsTitle);
+    
+    const headingsList = document.createElement('ul');
+    headings.forEach(heading => {
+        const li = document.createElement('li');
+        li.textContent = heading;
+        headingsList.appendChild(li);
+    });
+    headingsContainer.appendChild(headingsList);
+    
+    // Вставляем после hero-секции
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+        heroSection.insertAdjacentElement('afterend', headingsContainer);
+    }
+
+    // 2. Добавляем кнопку скролла вверх
+    const scrollToTopBtn = document.createElement('button');
+    scrollToTopBtn.className = 'scroll-to-top';
+    scrollToTopBtn.innerHTML = '↑ Наверх';
+    scrollToTopBtn.style.position = 'fixed';
+    scrollToTopBtn.style.bottom = '20px';
+    scrollToTopBtn.style.right = '20px';
+    scrollToTopBtn.style.padding = '10px 15px';
+    scrollToTopBtn.style.backgroundColor = '#2c3e50';
+    scrollToTopBtn.style.color = 'white';
+    scrollToTopBtn.style.border = 'none';
+    scrollToTopBtn.style.borderRadius = '5px';
+    scrollToTopBtn.style.cursor = 'pointer';
+    scrollToTopBtn.style.display = 'none';
+    scrollToTopBtn.style.zIndex = '99';
+    scrollToTopBtn.style.transition = 'opacity 0.3s';
+    
+    document.body.appendChild(scrollToTopBtn);
+    
+    // Показываем/скрываем кнопку при скролле
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            scrollToTopBtn.style.display = 'block';
+            scrollToTopBtn.style.opacity = '0.8';
+        } else {
+            scrollToTopBtn.style.opacity = '0';
+            setTimeout(() => {
+                if (window.pageYOffset <= 300) {
+                    scrollToTopBtn.style.display = 'none';
+                }
+            }, 300);
+        }
+    });
+    
+    // Обработчик клика по кнопке
+    scrollToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
 });
